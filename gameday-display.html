@@ -3,56 +3,382 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modern Sports Dashboard</title>
+    <title>Gameday Display Component</title>
     <style>
-        body {
-            background: linear-gradient(to right, #6a11cb, #2575fc);
-            font-family: Arial, sans-serif;
-            color: white;
+        * {
             margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
             padding: 20px;
         }
-        .header {
+
+        .gameday-component {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .time-display {
             text-align: center;
-            margin-bottom: 50px;
+            font-size: 28px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 30px;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 1px;
         }
-        .game-card {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid #fff;
-            padding: 20px;
-            margin: 10px 0;
+
+        .games-carousel {
+            position: relative;
+            overflow: hidden;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+        }
+
+        .games-container {
+            display: flex;
+            overflow-y: auto;
+            scroll-behavior: smooth;
+            max-height: 600px;
+            flex-direction: column;
+        }
+
+        .games-container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .games-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
             border-radius: 10px;
-            transition: transform 0.3s;
         }
+
+        .games-container::-webkit-scrollbar-thumb {
+            background: #667eea;
+            border-radius: 10px;
+            transition: background 0.3s;
+        }
+
+        .games-container::-webkit-scrollbar-thumb:hover {
+            background: #5568d3;
+        }
+
+        .game-card {
+            padding: 24px;
+            border-bottom: 1px solid #e8e8e8;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background: white;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .game-card:last-child {
+            border-bottom: none;
+        }
+
         .game-card:hover {
-            transform: scale(1.05);
+            background: #f9f9f9;
         }
-        .live-indicator {
-            color: #28a745; /* Green */
-            font-weight: bold;
+
+        .game-card.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-left: 4px solid #667eea;
+        }
+
+        .game-header {
+            margin-bottom: 16px;
+        }
+
+        .game-status {
+            display: inline-block;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            margin-bottom: 12px;
+        }
+
+        .status-live {
+            background: #ff4757;
+            color: white;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        .status-upcoming {
+            background: #ffa502;
+            color: white;
+        }
+
+        .status-finished {
+            background: #57606f;
+            color: white;
+        }
+
+        .game-card.active .status-live {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .game-card.active .status-upcoming {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .game-card.active .status-finished {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        .matchup {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .team {
+            flex: 1;
+            text-align: center;
+        }
+
+        .team-name {
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .team-score {
+            font-size: 32px;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .game-card.active .team-score {
+            color: #fff;
+        }
+
+        .vs-separator {
+            color: #ccc;
+            font-size: 16px;
+            font-weight: 300;
+        }
+
+        .game-card.active .vs-separator {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .game-details {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #e8e8e8;
+        }
+
+        .game-card.active .game-details {
+            border-top-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+        }
+
+        .detail-label {
+            color: #999;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .detail-value {
+            color: #333;
+            font-weight: 500;
+        }
+
+        .game-card.active .detail-label {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .game-card.active .detail-value {
+            color: #fff;
+        }
+
+        .no-games {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+
+        .no-games-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .scroll-indicator {
+            text-align: center;
+            padding: 12px;
+            font-size: 12px;
+            color: #999;
+            background: #f9f9f9;
+            border-top: 1px solid #e8e8e8;
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>Current Date & Time: 2026-02-10 18:34:52</h1>
+    <div class="gameday-component">
+        <!-- Time Display -->
+        <div class="time-display" id="timeDisplay">2026-02-10 18:35:00</div>
+
+        <!-- Games Carousel -->
+        <div class="games-carousel">
+            <div class="games-container" id="gamesContainer">
+                <!-- Game cards will be inserted here -->
+            </div>
+            <div class="scroll-indicator" id="scrollIndicator">Scroll for more games</div>
+        </div>
     </div>
-    <div class="game-card">
-        <h2>Team A vs Team B</h2>
-        <p>Score: 2 - 3</p>
-        <p class="live-indicator">Live</p>
-        <p>Venue: Stadium A</p>
-        <p>Date: 2026-02-10</p>
-        <p>Status: Ongoing</p>
-    </div>
-    <div class="game-card">
-        <h2>Team C vs Team D</h2>
-        <p>Score: 1 - 1</p>
-        <p class="live-indicator">Live</p>
-        <p>Venue: Stadium B</p>
-        <p>Date: 2026-02-10</p>
-        <p>Status: Ongoing</p>
-    </div>
-    <!-- Add more game cards as needed -->
+
+    <script>
+        // Sample game data
+        const gamesData = [
+            {
+                id: 1,
+                league: "NBA",
+                homeTeam: "Los Angeles Lakers",
+                awayTeam: "Boston Celtics",
+                homeScore: 108,
+                awayScore: 105,
+                status: "live",
+                date: "Feb 10, 2026",
+                time: "8:32 PM",
+                quarter: "Q4",
+                venue: "Crypto.com Arena"
+            },
+            {
+                id: 2,
+                league: "NFL",
+                homeTeam: "Kansas City Chiefs",
+                awayTeam: "San Francisco 49ers",
+                homeScore: 24,
+                awayScore: 20,
+                status: "upcoming",
+                date: "Feb 10, 2026",
+                time: "10:00 PM",
+                venue: "Arrowhead Stadium"
+            },
+            {
+                id: 3,
+                league: "MLB",
+                homeTeam: "New York Yankees",
+                awayTeam: "Boston Red Sox",
+                homeScore: 5,
+                awayScore: 3,
+                status: "finished",
+                date: "Feb 10, 2026",
+                time: "7:15 PM",
+                venue: "Yankee Stadium"
+            }
+        ];
+
+        function updateTime() {
+            const now = new Date();
+            const utcDate = now.toISOString().slice(0, 19).replace('T', ' ');
+            document.getElementById('timeDisplay').innerText = utcDate;
+        }
+
+        function getStatusLabel(status) {
+            switch(status) {
+                case 'live': return 'LIVE';
+                case 'upcoming': return 'UPCOMING';
+                case 'finished': return 'FINAL';
+                default: return status;
+            }
+        }
+
+        function getStatusClass(status) {
+            switch(status) {
+                case 'live': return 'status-live';
+                case 'upcoming': return 'status-upcoming';
+                case 'finished': return 'status-finished';
+                default: return '';
+            }
+        }
+
+        function renderGames() {
+            const container = document.getElementById('gamesContainer');
+            const scrollIndicator = document.getElementById('scrollIndicator');
+
+            if (gamesData.length === 0) {
+                container.innerHTML = '<div class="no-games"><div class="no-games-icon">🏟️</div><p>No games scheduled</p></div>';
+                scrollIndicator.style.display = 'none';
+                return;
+            }
+
+            container.innerHTML = gamesData.map((game, index) => `
+                <div class="game-card ${index === 0 ? 'active' : ''}" onclick="selectGame(${game.id})">
+                    <div class="game-header">
+                        <span class="game-status ${getStatusClass(game.status)}">${getStatusLabel(game.status)}</span>
+                    </div>
+                    <div class="matchup">
+                        <div class="team">
+                            <div class="team-name">${game.homeTeam}</div>
+                            <div class="team-score">${game.homeScore}</div>
+                        </div>
+                        <div class="vs-separator">vs</div>
+                        <div class="team">
+                            <div class="team-name">${game.awayTeam}</div>
+                            <div class="team-score">${game.awayScore}</div>
+                        </div>
+                    </div>
+                    <div class="game-details">
+                        <div class="detail-row">
+                            <span class="detail-label">Date</span>
+                            <span class="detail-value">${game.date}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Time</span>
+                            <span class="detail-value">${game.time}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Venue</span>
+                            <span class="detail-value">${game.venue}</span>
+                        </div>
+                        ${game.status === 'live' ? `<div class="detail-row"><span class="detail-label">Quarter</span><span class="detail-value">${game.quarter}</span></div>` : ''}
+                    </div>
+                </div>
+            `).join('');
+
+            scrollIndicator.style.display = gamesData.length > 1 ? 'block' : 'none';
+        }
+
+        function selectGame(gameId) {
+            const cards = document.querySelectorAll('.game-card');
+            cards.forEach(card => card.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+        }
+
+        // Initialize
+        renderGames();
+        setInterval(updateTime, 1000);
+        updateTime();
+    </script>
 </body>
 </html>
