@@ -3,209 +3,219 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Gameday Component</title>
+<title>Gameday Spotlight</title>
 
 <style>
-:root {
-  --accent: #667eea;
-  --live: #ff4757;
-  --upcoming: #ffa502;
-  --final: #57606f;
-}
-
-/* FULL TRANSPARENCY */
+/* ===== RESET + IFRAME FILL (CRITICAL) ===== */
 html, body {
+  width: 100%;
+  height: 100%;
   margin: 0;
   padding: 0;
   background: transparent;
-  font-family: "Segoe UI", system-ui, sans-serif;
   overflow: hidden;
+  font-family: "Segoe UI", system-ui, sans-serif;
 }
 
-gameday-display {
-  display: block;
+/* ===== ROOT WRAPPER ===== */
+/* This visually replaces the white iframe box */
+#app {
   width: 100%;
+  height: 100%;
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  padding: 32px;
+  box-sizing: border-box;
 }
 
-/* HEADER TIME */
-.time {
-  text-align: center;
+/* ===== TIME / DATE ===== */
+#time {
+  color: #fff;
   font-size: 22px;
   font-weight: 600;
   letter-spacing: 0.08em;
-  color: white;
-  margin-bottom: 12px;
   text-transform: uppercase;
+  margin-bottom: 20px;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.35);
 }
 
-/* HORIZONTAL SCROLL */
-.carousel {
+/* ===== HORIZONTAL SPOTLIGHT SCROLL ===== */
+#carousel {
   display: flex;
-  gap: 20px;
+  gap: 28px;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
-  padding: 0 12px;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 12px;
 }
 
-.carousel::-webkit-scrollbar {
+#carousel::-webkit-scrollbar {
   display: none;
 }
 
-/* GAME CARD */
+/* ===== GAME CARD ===== */
 .card {
-  flex: 0 0 320px;
   scroll-snap-align: center;
-  border-radius: 18px;
-  padding: 20px;
-  color: white;
-  background: rgba(0,0,0,0.55);
-  backdrop-filter: blur(14px);
-  border: 1px solid rgba(255,255,255,0.15);
-  transition: transform 0.4s ease;
+  flex: 0 0 420px;
+  height: 220px;
+  border-radius: 22px;
+  padding: 24px;
+  box-sizing: border-box;
+
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+
+  border: 1px solid rgba(255,255,255,0.18);
+  color: #fff;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  transition: transform 0.4s ease, background 0.4s ease;
 }
 
 .card.active {
-  transform: scale(1.06);
-  background: linear-gradient(135deg, var(--accent), #764ba2);
+  transform: scale(1.07);
+  background: linear-gradient(135deg, #667eea, #764ba2);
 }
 
+/* ===== STATUS BADGE ===== */
 .status {
+  align-self: flex-start;
   font-size: 11px;
   font-weight: 700;
-  padding: 6px 12px;
+  padding: 6px 14px;
   border-radius: 20px;
-  display: inline-block;
-  margin-bottom: 12px;
+  letter-spacing: 0.08em;
 }
 
-.live { background: var(--live); }
-.upcoming { background: var(--upcoming); }
-.final { background: var(--final); }
+.live { background: #ff4757; }
+.upcoming { background: #ffa502; }
+.final { background: #57606f; }
 
+/* ===== MATCHUP ===== */
 .matchup {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin: 14px 0;
+  justify-content: space-between;
 }
 
 .team {
-  text-align: center;
   flex: 1;
+  text-align: center;
 }
 
 .team-name {
+  font-size: 15px;
   font-weight: 700;
-  font-size: 14px;
+  opacity: 0.95;
 }
 
-.team-score {
-  font-size: 34px;
+.score {
+  font-size: 38px;
   font-weight: 800;
+  margin-top: 4px;
 }
 
 .vs {
-  opacity: 0.6;
   font-size: 14px;
+  opacity: 0.6;
 }
 
+/* ===== DETAILS ===== */
 .details {
-  margin-top: 12px;
-  font-size: 12px;
+  font-size: 13px;
   opacity: 0.85;
+  letter-spacing: 0.04em;
 }
 </style>
 </head>
 
 <body>
 
-<gameday-display></gameday-display>
+<div id="app">
+  <div id="time"></div>
+  <div id="carousel"></div>
+</div>
 
 <script>
-class GamedayDisplay extends HTMLElement {
-  connectedCallback() {
-    this.games = [
-      {
-        home: "Lakers",
-        away: "Celtics",
-        hs: 108,
-        as: 105,
-        status: "live",
-        detail: "Q4 • 8:32"
-      },
-      {
-        home: "Chiefs",
-        away: "49ers",
-        hs: 24,
-        as: 20,
-        status: "upcoming",
-        detail: "10:00 PM"
-      },
-      {
-        home: "Yankees",
-        away: "Red Sox",
-        hs: 5,
-        as: 3,
-        status: "final",
-        detail: "FINAL"
-      }
-    ];
-
-    this.render();
-    this.startClock();
-    this.autoScroll();
+/* ===== SAMPLE DATA (replace later with fetch) ===== */
+const games = [
+  {
+    status: "live",
+    home: "Lakers",
+    away: "Celtics",
+    hs: 108,
+    as: 105,
+    detail: "Q4 • 8:32"
+  },
+  {
+    status: "upcoming",
+    home: "Chiefs",
+    away: "49ers",
+    hs: 24,
+    as: 20,
+    detail: "10:00 PM"
+  },
+  {
+    status: "final",
+    home: "Yankees",
+    away: "Red Sox",
+    hs: 5,
+    as: 3,
+    detail: "FINAL"
   }
+];
 
-  startClock() {
-    const update = () => {
-      const now = new Date();
-      const time = now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
-      const date = now.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' });
-      this.querySelector(".time").textContent = `${date} • ${time}`;
-    };
-    update();
-    setInterval(update, 1000);
-  }
+/* ===== RENDER ===== */
+const carousel = document.getElementById("carousel");
 
-  autoScroll() {
-    const cards = this.querySelectorAll(".card");
-    let index = 0;
+games.forEach((g, i) => {
+  const card = document.createElement("div");
+  card.className = `card ${i === 0 ? "active" : ""}`;
+  card.innerHTML = `
+    <div class="status ${g.status}">${g.status.toUpperCase()}</div>
 
-    setInterval(() => {
-      cards.forEach(c => c.classList.remove("active"));
-      cards[index].classList.add("active");
-      cards[index].scrollIntoView({ behavior: "smooth", inline: "center" });
-      index = (index + 1) % cards.length;
-    }, 6000);
-  }
-
-  render() {
-    this.innerHTML = `
-      <div class="time"></div>
-      <div class="carousel">
-        ${this.games.map((g, i) => `
-          <div class="card ${i === 0 ? "active" : ""}">
-            <div class="status ${g.status}">${g.status.toUpperCase()}</div>
-            <div class="matchup">
-              <div class="team">
-                <div class="team-name">${g.home}</div>
-                <div class="team-score">${g.hs}</div>
-              </div>
-              <div class="vs">VS</div>
-              <div class="team">
-                <div class="team-name">${g.away}</div>
-                <div class="team-score">${g.as}</div>
-              </div>
-            </div>
-            <div class="details">${g.detail}</div>
-          </div>
-        `).join("")}
+    <div class="matchup">
+      <div class="team">
+        <div class="team-name">${g.home}</div>
+        <div class="score">${g.hs}</div>
       </div>
-    `;
-  }
-}
+      <div class="vs">VS</div>
+      <div class="team">
+        <div class="team-name">${g.away}</div>
+        <div class="score">${g.as}</div>
+      </div>
+    </div>
 
-customElements.define("gameday-display", GamedayDisplay);
+    <div class="details">${g.detail}</div>
+  `;
+  carousel.appendChild(card);
+});
+
+/* ===== AUTO SPOTLIGHT SCROLL ===== */
+let index = 0;
+setInterval(() => {
+  const cards = document.querySelectorAll(".card");
+  cards.forEach(c => c.classList.remove("active"));
+  cards[index].classList.add("active");
+  cards[index].scrollIntoView({ behavior: "smooth", inline: "center" });
+  index = (index + 1) % cards.length;
+}, 6000);
+
+/* ===== TIME / DATE ===== */
+function updateTime() {
+  const now = new Date();
+  const time = now.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+  const date = now.toLocaleDateString([], { weekday: "short", month: "short", day: "numeric" });
+  document.getElementById("time").textContent = `${date} • ${time}`;
+}
+updateTime();
+setInterval(updateTime, 1000);
 </script>
 
 </body>
