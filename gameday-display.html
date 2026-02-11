@@ -6,49 +6,57 @@
 <title>Gameday Spotlight</title>
 
 <style>
-/* ===== RESET + IFRAME FILL (CRITICAL) ===== */
+/* ===== RESET + IFRAME FILL ===== */
 html, body {
   width: 100%;
   height: 100%;
   margin: 0;
   padding: 0;
-  background: transparent;
   overflow: hidden;
   font-family: "Segoe UI", system-ui, sans-serif;
 }
 
-/* ===== ROOT WRAPPER ===== */
-/* This visually replaces the white iframe box */
+/* ===== PAGE BACKGROUND (BLENDS WITH GIPPER) ===== */
+body {
+  background: linear-gradient(180deg, #0a1fa8 0%, #07167a 100%);
+}
+
+/* ===== APP WRAPPER ===== */
 #app {
   width: 100%;
   height: 100%;
-  background: transparent;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
   padding: 32px;
   box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
-/* ===== TIME / DATE ===== */
+/* ===== TIME (CENTERED BETWEEN TOP & MIDDLE) ===== */
+#time-wrapper {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 #time {
-  color: #fff;
-  font-size: 22px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
+  color: #00c853; /* Churchill green */
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  margin-bottom: 20px;
-  text-shadow: 0 2px 10px rgba(0,0,0,0.35);
+  text-shadow: 0 2px 12px rgba(0,0,0,0.45);
 }
 
-/* ===== HORIZONTAL SPOTLIGHT SCROLL ===== */
+/* ===== BOTTOM SPOTLIGHT SCROLL ===== */
 #carousel {
   display: flex;
   gap: 28px;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
-  padding-bottom: 12px;
+  padding: 16px 0;
 }
 
 #carousel::-webkit-scrollbar {
@@ -59,16 +67,16 @@ html, body {
 .card {
   scroll-snap-align: center;
   flex: 0 0 420px;
-  height: 220px;
+  height: 210px;
   border-radius: 22px;
-  padding: 24px;
+  padding: 22px;
   box-sizing: border-box;
 
-  background: rgba(0, 0, 0, 0.55);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background: rgba(255,255,255,0.15);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
 
-  border: 1px solid rgba(255,255,255,0.18);
+  border: 1px solid rgba(255,255,255,0.25);
   color: #fff;
 
   display: flex;
@@ -83,11 +91,11 @@ html, body {
   background: linear-gradient(135deg, #667eea, #764ba2);
 }
 
-/* ===== STATUS BADGE ===== */
+/* ===== STATUS ===== */
 .status {
   align-self: flex-start;
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 800;
   padding: 6px 14px;
   border-radius: 20px;
   letter-spacing: 0.08em;
@@ -112,12 +120,11 @@ html, body {
 .team-name {
   font-size: 15px;
   font-weight: 700;
-  opacity: 0.95;
 }
 
 .score {
   font-size: 38px;
-  font-weight: 800;
+  font-weight: 900;
   margin-top: 4px;
 }
 
@@ -129,8 +136,8 @@ html, body {
 /* ===== DETAILS ===== */
 .details {
   font-size: 13px;
-  opacity: 0.85;
-  letter-spacing: 0.04em;
+  opacity: 0.9;
+  letter-spacing: 0.05em;
 }
 </style>
 </head>
@@ -138,21 +145,20 @@ html, body {
 <body>
 
 <div id="app">
-  <div id="time"></div>
+
+  <!-- TIME -->
+  <div id="time-wrapper">
+    <div id="time"></div>
+  </div>
+
+  <!-- GAMES -->
   <div id="carousel"></div>
+
 </div>
 
 <script>
-/* ===== SAMPLE DATA (replace later with fetch) ===== */
+/* ===== SAMPLE DATA ===== */
 const games = [
-  {
-    status: "live",
-    home: "Lakers",
-    away: "Celtics",
-    hs: 108,
-    as: 105,
-    detail: "Q4 • 8:32"
-  },
   {
     status: "upcoming",
     home: "Chiefs",
@@ -163,15 +169,15 @@ const games = [
   },
   {
     status: "final",
-    home: "Yankees",
-    away: "Red Sox",
-    hs: 5,
-    as: 3,
+    home: "Lakers",
+    away: "Celtics",
+    hs: 108,
+    as: 105,
     detail: "FINAL"
   }
 ];
 
-/* ===== RENDER ===== */
+/* ===== RENDER CARDS ===== */
 const carousel = document.getElementById("carousel");
 
 games.forEach((g, i) => {
@@ -197,7 +203,7 @@ games.forEach((g, i) => {
   carousel.appendChild(card);
 });
 
-/* ===== AUTO SPOTLIGHT SCROLL ===== */
+/* ===== AUTO SCROLL ===== */
 let index = 0;
 setInterval(() => {
   const cards = document.querySelectorAll(".card");
@@ -207,7 +213,7 @@ setInterval(() => {
   index = (index + 1) % cards.length;
 }, 6000);
 
-/* ===== TIME / DATE ===== */
+/* ===== TIME ===== */
 function updateTime() {
   const now = new Date();
   const time = now.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
